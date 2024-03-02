@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -evx
+
+cargo fmt -- --check
+cargo clippy --all-targets -- -D warnings
+cargo test

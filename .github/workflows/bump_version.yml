@@ -1,0 +1,32 @@
+name: "Bump version"
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  create-tag:
+    name: "Bump version"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Bump versions"
+        id: bump-version
+        run: |
+          ./scripts/bump-version.sh matcher-derive-impl
+          ./scripts/bump-version.sh matcher-derive
+          echo NEED_PUSH=`if [[ `git status --porcelain` ]]; then echo "true"; fi` >> $GITHUB_OUTPUT
+
+      - name: "Commit release"
+        # Don't run again on already pushed auto commit. Don't run on pull request events.
+        if: steps.bump-version.outputs.NEED_PUSH == true
+        run: |
+          git config --global user.name  `git log --format='%ne'`
+          git config --global user.email `git log --format='%ae'`
+          git commit -a -m "Release `git tag --points-at HEAD`"
+          git push --follow-tags
