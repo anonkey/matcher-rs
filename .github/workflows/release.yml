@@ -14,7 +14,6 @@ env:
   CARGO_PROFILE_RELEASE_LTO: true
   CARGO_PROFILE_RELEASE_OPT_LEVEL: "s"
   CARGO_TERM_COLOR: always
-  CHEZMOI_MODIFY_MANAGER_BUILDER: github-release
   RUST_BACKTRACE: 1
   RUSTFLAGS: "-D warnings"
   RUSTUP_MAX_RETRIES: 10
@@ -90,25 +89,25 @@ jobs:
         env:
           CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
 
-  upload-aur:
-    needs:
-      - upload-crates-io
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Get AUR repo
-        run: git clone https://aur.archlinux.org/chezmoi_modify_manager.git aur
-      - name: Update PKGBUILD
-        run: .ci/upd-pkgbuild.sh "${RELEASE_TAG}" aur/PKGBUILD
-        env:
-          RELEASE_TAG: ${{ github.ref }}
-      - name: Publish AUR package
-        uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
-        with:
-          pkgname: chezmoi_modify_manager
-          pkgbuild: aur/PKGBUILD
-          updpkgsums: true
-          commit_username: ${{ secrets.AUR_USERNAME }}
-          commit_email: ${{ secrets.AUR_EMAIL }}
-          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          commit_message: New upstream release (automatic update from GitHub Actions)
+  # upload-aur:
+  #   needs:
+  #     - upload-crates-io
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Get AUR repo
+  #       run: git clone https://aur.archlinux.org/chezmoi_modify_manager.git aur
+  #     - name: Update PKGBUILD
+  #       run: .ci/upd-pkgbuild.sh "${RELEASE_TAG}" aur/PKGBUILD
+  #       env:
+  #         RELEASE_TAG: ${{ github.ref }}
+  #     - name: Publish AUR package
+  #       uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
+  #       with:
+  #         pkgname: chezmoi_modify_manager
+  #         pkgbuild: aur/PKGBUILD
+  #         updpkgsums: true
+  #         commit_username: ${{ secrets.AUR_USERNAME }}
+  #         commit_email: ${{ secrets.AUR_EMAIL }}
+  #         ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+  #         commit_message: New upstream release (automatic update from GitHub Actions)

@@ -4,9 +4,17 @@ members = [
     "matcher-derive",
     "matcher-derive-impl"
 ]
-default-members = [
-    "matcher-test",
-    "matcher-derive",
-    "matcher-derive-impl"
-]
 resolver = "2"
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+
+[patch.crates-io]
+matcher-derive = { path = "./matcher-derive" }
+matcher-derive-impl = { path = "./matcher-derive-impl" }
