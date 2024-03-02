@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "matcher-test",
-    "matcher-derive",
-    "matcher-derive-impl"
+    "packages/matcher-test",
+    "packages/matcher-derive",
+    "packages/matcher-derive-impl"
 ]
 resolver = "2"
 
@@ -16,5 +16,5 @@ lto = true
 codegen-units = 1
 
 [patch.crates-io]
-matcher-derive = { path = "./matcher-derive" }
-matcher-derive-impl = { path = "./matcher-derive-impl" }
+matcher-derive = { path = "./packages/matcher-derive" }
+matcher-derive-impl = { path = "./packages/matcher-derive-impl" }
