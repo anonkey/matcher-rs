@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "matcher-test",
+    "matcher-derive",
+    "matcher-derive-impl"
+]
+default-members = [
+    "matcher-test",
+    "matcher-derive",
+    "matcher-derive-impl"
+]
+resolver = "2"

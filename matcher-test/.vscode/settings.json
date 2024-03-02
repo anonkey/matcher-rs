@@ -1,0 +1,6 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "../matcher-derive/Cargo.toml",
+    "../matcher-derive-impl/Cargo.toml"
+  ]
+}

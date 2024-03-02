@@ -1,0 +1,28 @@
+version: "2.1"
+services:
+  apprise-api:
+    image: lscr.io/linuxserver/apprise-api:latest
+    container_name: apprise-api
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./config:/config
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: exit $(( RANDOM % 2  ))
+      interval: 60s
+      retries: 1
+      start_period: 20s
+      timeout: 10s
+  notifier:
+    image: ghcr.io/anonkey/docker-events-apprise:latest
+    volumes:
+      - ./config.yml:/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint:
+      - "/bin/docker-events-apprise"
+      - "/config.yml"
+      - "http://apprise-api:8000"
