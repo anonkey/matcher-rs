@@ -1,9 +1,7 @@
 name: "Bump version"
 
 on:
-  push:
-    branches:
-      - "master"
+  workflow_dispatch:
 
 jobs:
   create-tag:
@@ -14,6 +12,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Install dev deps"
+        run: |
+          ./scripts/init-dev-env.sh
 
       - name: "Bump versions"
         id: bump-version
@@ -34,4 +36,5 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: master
+          branch: ${GITHUB_REF#refs/heads/}
+          tags: true
