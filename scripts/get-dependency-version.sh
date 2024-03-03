@@ -6,7 +6,7 @@ project="$1"
 dependency="$2"
 script_dir=$(dirname "$0")
 
-source "$script_dir/utils.sh"
+. "$script_dir/utils.sh"
 
 version=`get_dependency_version "$project" "$dependency"`
 
