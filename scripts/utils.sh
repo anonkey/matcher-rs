@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 get_version() {
   typeset cargo_path=`get_cargo $1`

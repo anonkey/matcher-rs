@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 get_version() {
   cargo_path="$1"
