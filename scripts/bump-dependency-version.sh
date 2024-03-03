@@ -4,6 +4,6 @@ set -evx
 
 script_dir=$(dirname "$0")
 
-source "$script_dir/utils.sh"
+. "$script_dir/utils.sh"
 
 bump_dependency_version $1 $2 $3
