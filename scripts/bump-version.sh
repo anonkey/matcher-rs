@@ -6,7 +6,7 @@ shift;
 cliff_args="$*"
 script_dir=$(dirname "$0")
 
-source "$script_dir/utils.sh"
+. "$script_dir/utils.sh"
 
 project_path=`get_path $project`
 cargo_path=`get_cargo $project`
