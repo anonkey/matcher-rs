@@ -2,7 +2,7 @@
 
 set -evx
 
-script_dir=$(dirname "${BASH_SOURCE[0]}")
+script_dir=$(dirname "$0")
 
 source "$script_dir/utils.sh"
 
