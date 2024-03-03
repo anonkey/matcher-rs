@@ -26,7 +26,12 @@ jobs:
         # Don't run again on already pushed auto commit. Don't run on pull request events.
         if: steps.bump-version.outputs.NEED_PUSH == true
         run: |
-          git config --global user.name  `git log --format='%ne'`
-          git config --global user.email `git log --format='%ae'`
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git commit -a -m "Release `git tag --points-at HEAD`"
-          git push --follow-tags
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
