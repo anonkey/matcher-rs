@@ -15,6 +15,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: "Install dev deps"
+        run: |
+          ./scripts/init-dev-env.sh
+
       - name: "Bump versions"
         id: bump-version
         run: |
