@@ -6,7 +6,7 @@ permissions:
 on:
   push:
     tags:
-      - (matcher-derive(-impl)?)-([0-9]+\.){2}[0-9]+
+      - (matcher-derive(-impl)?)-([0-9]+\.){2}[0-9]
 
 env:
   CARGO_INCREMENTAL: 0
