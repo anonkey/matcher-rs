@@ -15,29 +15,40 @@ jobs:
           fetch-depth: 9999
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Install dev deps"
-        run: |
-          SKIP_GIT_HOOKS=true ./scripts/init-dev-env.sh
+      - uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: conventional_commits_linter
+      - uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: git-cliff
+      - uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: toml-cli
+      - uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: conventional_commits_next_version
 
       - name: "Bump versions"
         id: bump-version
         run: |
-          ./scripts/bump-version.sh matcher-derive-impl
-          ./scripts/bump-version.sh matcher-derive
-          echo NEED_PUSH=`if [[ `git status --porcelain` ]]; then echo "true"; fi` >> $GITHUB_OUTPUT
+          set -vx
+          ./scripts/bump-versions.sh && echo NEED_PUSH="true" >> $GITHUB_OUTPUT
 
+      - name: "Debug output"
+        run: |
+          echo "${{steps.bump-version.outputs.NEED_PUSH}}"
       - name: "Commit release"
         # Don't run again on already pushed auto commit. Don't run on pull request events.
-        if: steps.bump-version.outputs.NEED_PUSH == true
+        if: steps.bump-version.outputs.NEED_PUSH == 'true'
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git commit --no-verify -a -m "Release `git tag --points-at HEAD`"
 
       - name: Push changes
-        if: steps.bump-version.outputs.NEED_PUSH == true
+        if: steps.bump-version.outputs.NEED_PUSH == 'true'
         uses: anonkey/github-push-action@feat/no-verify-flag
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.ref }}
           tags: true
