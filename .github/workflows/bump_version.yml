@@ -17,7 +17,7 @@ jobs:
 
       - name: "Install dev deps"
         run: |
-          ./scripts/init-dev-env.sh
+          SKIP_GIT_HOOKS=true ./scripts/init-dev-env.sh
 
       - name: "Bump versions"
         id: bump-version
@@ -32,10 +32,11 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git commit -a -m "Release `git tag --points-at HEAD`"
+          git commit --no-verify -a -m "Release `git tag --points-at HEAD`"
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
+        if: steps.bump-version.outputs.NEED_PUSH == true
+        uses: anonkey/github-push-action@feat/no-verify-flag
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref }}
