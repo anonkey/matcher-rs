@@ -9,8 +9,10 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          fetch-tags: true
+          fetch-depth: 9999
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Install dev deps"
@@ -36,5 +38,5 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${GITHUB_REF#refs/heads/}
+          branch: ${{ github.head_ref }}
           tags: true
