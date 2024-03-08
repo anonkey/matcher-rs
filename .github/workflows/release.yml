@@ -24,15 +24,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Parse version
+        id: vars
+        run: echo "package=`echo ${GITHUB_REF#refs/*/}" | sed -r 's/-([0-9]+.?)+//g'` version=`echo ${GITHUB_REF#refs/*/}" | sed -r 's/(([a-z]+)-)+(([0-9]+.?)+)/\3/'` >> $GITHUB_OUTPUT
+
       - uses: taiki-e/create-gh-release-action@v1.8.0
         with:
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
+          changelog: ./packages/matcher-derive/CHANGELOG.md
+          prefix: ${{ steps.bump-version.outputs.package }}-
 
-  upload-crates-io:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: cargo publish --dry-run --token ${CRATES_TOKEN}
-        env:
-          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+  # upload-crates-io:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: cargo publish --dry-run --token ${CRATES_TOKEN}
+  #       env:
+  #         CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}

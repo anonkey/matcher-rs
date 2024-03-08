@@ -4,9 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-tag:
+  create-tags:
     name: "Bump version"
     runs-on: "ubuntu-latest"
+    outputs:
+      tags: ${{steps.get-tags.outputs.tags}}
     steps:
       - name: "Check out the repo"
         uses: actions/checkout@v4
@@ -29,26 +31,68 @@ jobs:
           tool: conventional_commits_next_version
 
       - name: "Bump versions"
-        id: bump-version
+        id: bump-versions
         run: |
           set -vx
-          ./scripts/bump-versions.sh && echo NEED_PUSH="true" >> $GITHUB_OUTPUT
+          echo new_tags="`./scripts/bump-versions.sh | tr '\n' ' '`" >> $GITHUB_OUTPUT
 
-      - name: "Debug output"
-        run: |
-          echo "${{steps.bump-version.outputs.NEED_PUSH}}"
-      - name: "Commit release"
+      - name: "Create release branch"
+        id: create-release-branch
         # Don't run again on already pushed auto commit. Don't run on pull request events.
-        if: steps.bump-version.outputs.NEED_PUSH == 'true'
+        if: steps.bump-versions.outputs.new_tags != ''
         run: |
+          set -vex
+          git checkout -b "releases/`git rev-parse HEAD`"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git commit --no-verify -a -m "Release `git tag --points-at HEAD`"
+          for tag in ${{ steps.bump-versions.outputs.new_tags }}; do
+            git tag $tag
+          done
+          echo "branch=releases/`git rev-parse HEAD`" >> $GITHUB_OUTPUT
 
       - name: Push changes
-        if: steps.bump-version.outputs.NEED_PUSH == 'true'
+        if: steps.bump-versions.outputs.new_tags != ''
         uses: anonkey/github-push-action@feat/no-verify-flag
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+          branch: ${{ steps.create-release-branch.outputs.branch }}
           tags: true
+
+      - name: "Create draft releases"
+        if: steps.bump-versions.outputs.new_tags != ''
+        id: set-outputs
+        run: |
+          set -evx
+          for tag in ${{ steps.bump-versions.outputs.new_tags }}; do
+            package=`echo $tag" | sed -r 's/-([0-9]+.?)+//g'`
+            version=`echo $tag" | sed -r 's/(([a-z]+)-)+(([0-9]+.?)+)/\3/'`
+            echo "package=$package version=$version"
+
+            GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh release create --latest --draft --title "${title}" -F "./packages/${package}"
+          done
+
+  # create-releases:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #   name: "Create releases"
+  #   runs-on: "ubuntu-latest"
+  #   needs: create-tags
+  #   if: ${{ needs.create-tags.outputs.tags != '' }}
+  #   steps:
+  #     - name: "Check out the repo"
+  #       uses: actions/checkout@v4
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: "Create release"
+  #       uses: actions/create-release@v1
+  #       with:
+  #         tag_name: ${{needs.create-tag.outputs.tags}}
+  #         release_name: ${{needs.create-tag.outputs.tags}}
+  #         body: "Release ${{needs.create-tag.outputs.tags}}"
+  #         draft: false
+  #         prerelease: false
+  #         token: ${{ secrets.GITHUB_TOKEN }}
