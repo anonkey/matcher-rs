@@ -1,4 +1,4 @@
-name: Build
+name: Test
 
 permissions:
   contents: read
@@ -8,6 +8,10 @@ on:
     branches: ["master"]
   pull_request:
     branches: ["master"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
   CARGO_INCREMENTAL: 0
@@ -49,14 +53,14 @@ jobs:
           - nightly
         debug_info:
           - packed
-        include:
-          # RISCV doesn't work with split debug info (see rust-lang/rust#110224)
-          - target: riscv64gc-unknown-linux-gnu
-            rust: stable
-            debug_info: off
-          - target: riscv64gc-unknown-linux-gnu
-            rust: nightly
-            debug_info: off
+        # include:
+        #   # RISCV doesn't work with split debug info (see rust-lang/rust#110224)
+        #   - target: riscv64gc-unknown-linux-gnu
+        #     rust: stable
+        #     debug_info: off
+        #   - target: riscv64gc-unknown-linux-gnu
+        #     rust: nightly
+        #     debug_info: off
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
@@ -67,6 +71,8 @@ jobs:
         uses: Swatinem/rust-cache@v2.7.3
         with:
           key: ${{ matrix.target }}-${{ matrix.rust }}
+      - name: ls
+        run: ls -laR .
       - name: Cross compile
         run: cross test --no-run --locked --target ${{ matrix.target }} --verbose
       - name: Cross test

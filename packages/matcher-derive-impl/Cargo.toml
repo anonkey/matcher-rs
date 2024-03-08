@@ -6,9 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-concat-idents = "1.1.5"
-proc-macro2 = "1.0.75"
-quote = "1.0.35"
-serde = {version="1.0.197", features = ["derive"]}
-serde_yaml = "0.9.32"
-syn = { version = "2.0.50", features = ["full"] }
+proc-macro2 = "1.0.86"
+quote = "1.0.37"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_yaml = "0.9.34"
+syn = { version = "2.0.77", features = ["full"] }
