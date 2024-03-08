@@ -1,8 +1,9 @@
 [workspace]
 members = [
-    "packages/matcher-test",
-    "packages/matcher-derive",
-    "packages/matcher-derive-impl"
+  "packages/docker-apprise-connector",
+  "packages/matcher-test",
+  "packages/matcher-derive",
+  "packages/matcher-derive-impl",
 ]
 resolver = "2"
 
