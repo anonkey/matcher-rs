@@ -81,3 +81,43 @@ bump_dependency_version() {
 
   echo "$new_cargo" > "$cargo_path"
 }
+
+
+bump_version() {
+  typeset project="$1"
+  typeset project_path=`get_path $project`
+  typeset cargo_path=`get_cargo $project`
+  typeset current_version=`get_version $project`
+  typeset current_tag=`get_current_tag $project`
+  typeset current_tag_commit=`get_current_commit $project`
+
+  typeset next_version=`get_next_version $project`
+
+  if [ "$current_version" = "$next_version" ];
+  then
+    echo "Version is already $next_version"
+    return 1
+  fi
+
+  echo "Bumping $project from $current_version to $next_version"
+
+  git cliff $cliff_args --tag "$next_version" --include-path "$project_path/*"  -u --prepend "$project_path/CHANGELOG.md" "$current_tag_commit"..HEAD
+
+  typeset new_cargo=`toml set $cargo_path package.version $next_version`
+
+  echo "$new_cargo" > $cargo_path
+
+  typeset package_path=`get_path`
+
+  for project_to_update in `ls $package_path`; do
+    echo "Bumping $project_to_update"
+    typeset version=`get_dependency_version "$project_to_update" "$project"`
+
+    if [ "$version" != "" ];
+    then
+      bump_dependency_version "$project_to_update" "$project" "$next_version";
+    fi
+  done
+
+  git tag $project-$next_version
+}
