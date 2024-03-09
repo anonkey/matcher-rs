@@ -95,11 +95,8 @@ bump_version() {
 
   if [ "$current_version" = "$next_version" ];
   then
-    echo "Version is already $next_version"
     return 1
   fi
-
-  echo "Bumping $project from $current_version to $next_version"
 
   git cliff $cliff_args --tag "$next_version" --include-path "$project_path/*"  -u --prepend "$project_path/CHANGELOG.md" "$current_tag_commit"..HEAD
 
@@ -110,7 +107,6 @@ bump_version() {
   typeset package_path=`get_path`
 
   for project_to_update in `ls $package_path`; do
-    echo "Bumping $project_to_update"
     typeset version=`get_dependency_version "$project_to_update" "$project"`
 
     if [ "$version" != "" ];
@@ -119,5 +115,5 @@ bump_version() {
     fi
   done
 
-  git tag $project-$next_version
+  echo $project-$next_version
 }
