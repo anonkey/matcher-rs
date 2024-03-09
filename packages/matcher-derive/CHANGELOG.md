@@ -1,3 +1,14 @@
+## [0.2.0] - 2024-03-09
+
+### Features
+
+- *(tt)* [**breaking**] Toto
+- Toto
+
+### Testing
+
+- Fr
+
 ## [0.1.0] - 2024-03-02
 
 ### ⚙️ Miscellaneous Tasks
