@@ -34,37 +34,36 @@ jobs:
         id: bump-versions
         run: |
           set -vx
-          ./scripts/bump-versions.sh
-          [[ `git status --porcelain` ]] && echo NEED_PUSH="true" >> $GITHUB_OUTPUT
+          echo new_tags="`./scripts/bump-versions.sh`" >> $GITHUB_OUTPUT
 
       - name: "Create release branch"
         id: create-release-branch
         # Don't run again on already pushed auto commit. Don't run on pull request events.
-        if: steps.bump-versions.outputs.NEED_PUSH == 'true'
+        if: steps.bump-versions.outputs.new_tags != ''
         run: |
           set -vex
           git checkout -b "releases/`git rev-parse HEAD`"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git commit --no-verify -a -m "Release `git tag --points-at HEAD`"
+          for tag in "${{ steps.bump-versions.outputs.new_tags }}"; do
+            git tag $tag
+          done
           echo "branch=releases/`git rev-parse HEAD`" >> $GITHUB_OUTPUT
 
       - name: Push changes
-        if: steps.bump-versions.outputs.NEED_PUSH == 'true'
+        if: steps.bump-versions.outputs.new_tags != ''
         uses: anonkey/github-push-action@feat/no-verify-flag
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ steps.create-release-branch.outputs.branch }}
           tags: true
 
-      - name: "Set outputs"
-        if: steps.bump-versions.outputs.NEED_PUSH == 'true'
+      - name: "Create draft releases"
+        if: steps.bump-versions.outputs.new_tags != ''
         id: set-outputs
         run: |
           set -evx
-          git tag --points-at HEAD
-          git log
-          git status
           for tag in `git tag --points-at HEAD`; do
             package=`echo $tag" | sed -r 's/-([0-9]+.?)+//g'`
             version=`echo $tag" | sed -r 's/(([a-z]+)-)+(([0-9]+.?)+)/\3/'`

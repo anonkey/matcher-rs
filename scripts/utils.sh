@@ -119,5 +119,5 @@ bump_version() {
     fi
   done
 
-  git tag $project-$next_version
+  echo $project-$next_version
 }
